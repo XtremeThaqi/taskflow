@@ -1,16 +1,21 @@
-# TaskFlow – Modern To-Do List
-Clean, modern Tkinter-based task manager with pending / completed sections.
+# TaskFlow
+Modern, clean to-do list desktop application built with Python + Tkinter.
 
 ## Features
-- Add tasks with Enter key support
-- Delete tasks
-- Mark tasks complete (gray + checkmark)
+- Add tasks (supports pressing Enter)
+- Delete selected tasks
+- Mark tasks as completed (moves to bottom with gray styling)
 - Scrollable list
-- Beautiful light theme
+- Clean modern light theme
 
-## How to Run
+## Download
+→ Windows: [Latest release → TaskFlow.exe](https://github.com/XtremeThaqi/taskflow/blob/main/dist/TaskFlow.exe)
+Just download and double-click — no installation or Python required.
+
+## How to run from source (for developers)
 Requires **Python 3.8+**
+
 ```bash
 git clone https://github.com/XtremeThaqi/taskflow.git
-cd taskflow
+cd YOUR-REPOSITORY
 python taskflow.py
