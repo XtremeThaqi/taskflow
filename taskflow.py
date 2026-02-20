@@ -1,166 +1,207 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-class TodoApp:
+class TaskFlow:
     def __init__(self, root):
         self.root = root
         self.root.title("TaskFlow")
-        self.root.geometry("540x620")
-        self.root.configure(bg="#f5f7fa")
+        self.root.geometry("580x660")
+        self.root.configure(bg="#0d1117")
         self.root.resizable(False, False)
 
         self.pending_tasks = []
         self.completed_tasks = []
 
-        self._setup_style()
-        self._create_widgets()
-        self.root.bind("<Return>", lambda event: self.add_task())
+        self._setup_theme()
+        self._create_ui()
 
-    def _setup_style(self):
+        self.root.bind("<Return>", lambda e: self.add_task())
+
+    def _setup_theme(self):
+        # Dark professional palette - restrained & high-contrast
+        self.colors = {
+            "bg":           "#0d1117",      # very dark background
+            "surface":      "#161b22",      # cards / panels
+            "surface_alt":  "#1f2937",      # subtle variation
+            "text":         "#e6edf3",      # main text
+            "text_mute":    "#8b949e",      # secondary / completed
+            "border":       "#30363d",      # subtle lines
+            "accent":       "#58a6ff",      # blue links / primary action
+            "accent_hover": "#388bfd",      # hover state
+            "danger":       "#f85149",      # delete
+            "success":      "#3fb950",      # complete (used subtly)
+            "selection":    "#1f6feb",      # selected item bg
+        }
+
         style = ttk.Style()
         style.theme_use("clam")
 
+        # Button styling
         style.configure("TButton",
-                        font=("Helvetica", 12, "bold"),
-                        padding=10)
+                        font=("Segoe UI", 11, "bold"),
+                        padding=10,
+                        background=self.colors["accent"],
+                        foreground="white")
         style.map("TButton",
-                  background=[("active", "#3b82f6"), ("!disabled", "#2563eb")],
+                  background=[("active", self.colors["accent_hover"]),
+                              ("!disabled", self.colors["accent"])],
                   foreground=[("active", "white"), ("!disabled", "white")])
 
-        style.configure("Accent.TButton",
-                        background="#10b981",
+        # Accent button for Mark Complete
+        style.configure("Success.TButton",
+                        background=self.colors["success"],
                         foreground="white")
-        style.map("Accent.TButton",
-                  background=[("active", "#059669")])
+        style.map("Success.TButton",
+                  background=[("active", "#2ea043")])
 
-        style.configure("TFrame", background="#f5f7fa")
+        # Delete button
+        style.configure("Danger.TButton",
+                        background=self.colors["danger"],
+                        foreground="white")
+        style.map("Danger.TButton",
+                  background=[("active", "#d32f2f")])
 
-    def _create_widgets(self):
-        main_container = ttk.Frame(self.root, padding="20 25 20 15")
-        main_container.pack(fill="both", expand=True)
+    def _create_ui(self):
+        c = self.colors
 
-        header = tk.Label(main_container,
+        main = ttk.Frame(self.root, padding="28 32 28 24", style="TFrame")
+        main.pack(fill="both", expand=True)
+        main.configure(style="TFrame")  # ensure bg
+        ttk.Style().configure("TFrame", background=c["bg"])
+
+        # Header
+        header = tk.Label(main,
                           text="TaskFlow",
-                          font=("Helvetica", 24, "bold"),
-                          bg="#f5f7fa",
-                          fg="#1e293b")
-        header.pack(pady=(0, 25))
+                          font=("Segoe UI", 24, "bold"),
+                          bg=c["bg"],
+                          fg=c["text"])
+        header.pack(anchor="w", pady=(0, 32))
 
-        input_frame = ttk.Frame(main_container)
-        input_frame.pack(fill="x", pady=(0, 20))
+        # Input row
+        input_row = tk.Frame(main, bg=c["bg"])
+        input_row.pack(fill="x", pady=(0, 24))
 
-        self.task_entry = tk.Entry(input_frame,
-                                   font=("Helvetica", 14),
-                                   relief="flat",
-                                   bg="white",
-                                   insertbackground="#2563eb",
-                                   highlightthickness=2,
-                                   highlightcolor="#bfdbfe",
-                                   highlightbackground="#bfdbfe")
-        self.task_entry.pack(side="left", fill="x", expand=True, padx=(0, 12))
+        self.entry = tk.Entry(input_row,
+                              font=("Segoe UI", 13),
+                              bg=c["surface"],
+                              fg=c["text"],
+                              insertbackground=c["accent"],
+                              relief="flat",
+                              highlightthickness=1,
+                              highlightbackground=c["border"],
+                              highlightcolor=c["accent"],
+                              bd=0)
+        self.entry.pack(side="left", fill="x", expand=True, padx=(0, 16))
 
-        add_button = ttk.Button(input_frame,
-                                text="Add Task",
-                                command=self.add_task,
-                                style="TButton",
-                                width=12)
-        add_button.pack(side="right")
+        add_btn = ttk.Button(input_row,
+                             text="Add Task",
+                             command=self.add_task)
+        add_btn.pack(side="right")
 
-        list_container = ttk.Frame(main_container)
-        list_container.pack(fill="both", expand=True)
+        # List container
+        list_frame = tk.Frame(main, bg=c["bg"])
+        list_frame.pack(fill="both", expand=True)
 
-        scrollbar = ttk.Scrollbar(list_container)
+        scrollbar = ttk.Scrollbar(list_frame)
         scrollbar.pack(side="right", fill="y")
 
-        self.task_listbox = tk.Listbox(list_container,
-                                       font=("Helvetica", 13),
-                                       selectbackground="#dbeafe",
-                                       selectforeground="#1e40af",
-                                       activestyle="none",
-                                       bd=0,
-                                       highlightthickness=0,
-                                       bg="white",
-                                       fg="#1e293b",
-                                       yscrollcommand=scrollbar.set)
-        self.task_listbox.pack(side="left", fill="both", expand=True)
+        self.listbox = tk.Listbox(list_frame,
+                                  font=("Segoe UI", 12),
+                                  bg=c["surface"],
+                                  fg=c["text"],
+                                  selectbackground=c["selection"],
+                                  selectforeground="white",
+                                  activestyle="none",
+                                  bd=0,
+                                  highlightthickness=0,
+                                  yscrollcommand=scrollbar.set)
+        self.listbox.pack(side="left", fill="both", expand=True)
 
-        scrollbar.config(command=self.task_listbox.yview)
+        scrollbar.config(command=self.listbox.yview)
 
-        button_frame = ttk.Frame(main_container)
-        button_frame.pack(fill="x", pady=(20, 10))
+        # Bottom buttons
+        btn_row = tk.Frame(main, bg=c["bg"])
+        btn_row.pack(fill="x", pady=(24, 0))
 
-        delete_button = ttk.Button(button_frame,
-                                   text="Delete",
-                                   command=self.delete_task,
-                                   style="TButton")
-        delete_button.pack(side="left", padx=(0, 12))
+        delete_btn = ttk.Button(btn_row,
+                                text="Delete",
+                                command=self.delete_task,
+                                style="Danger.TButton")
+        delete_btn.pack(side="left", padx=(0, 16))
 
-        done_button = ttk.Button(button_frame,
-                                 text="Mark Complete",
-                                 command=self.mark_as_done,
-                                 style="Accent.TButton")
-        done_button.pack(side="left")
+        complete_btn = ttk.Button(btn_row,
+                                  text="Mark Complete",
+                                  command=self.mark_as_done,
+                                  style="Success.TButton")
+        complete_btn.pack(side="left")
 
-    def add_task(self):
-        task_text = self.task_entry.get().strip()
-        if not task_text:
-            messagebox.showwarning("Input Required", "Please enter a task.")
-            return
-
-        self.pending_tasks.append(task_text)
         self._refresh_listbox()
 
-        self.task_entry.delete(0, tk.END)
-        self.task_entry.focus()
-
-    def delete_task(self):
-        selection = self.task_listbox.curselection()
-        if not selection:
-            messagebox.showinfo("No Selection", "Please select a task first.")
+    def add_task(self):
+        text = self.entry.get().strip()
+        if not text:
+            messagebox.showwarning("Input required", "Please type a task first.")
             return
 
-        index = selection[0]
+        self.pending_tasks.append(text)
+        self._refresh_listbox()
+        self.entry.delete(0, tk.END)
+        self.entry.focus()
 
-        if index < len(self.pending_tasks):
-            del self.pending_tasks[index]
+    def delete_task(self):
+        sel = self.listbox.curselection()
+        if not sel:
+            messagebox.showinfo("No selection", "Select a task first.")
+            return
+
+        idx = sel[0]
+        offset = 1 if self.pending_tasks and self.completed_tasks else 0
+
+        if idx < len(self.pending_tasks):
+            del self.pending_tasks[idx]
         else:
-            real_index = index - len(self.pending_tasks) - (1 if self.pending_tasks and self.completed_tasks else 0)
-            del self.completed_tasks[real_index]
+            real_idx = idx - len(self.pending_tasks) - offset
+            if 0 <= real_idx < len(self.completed_tasks):
+                del self.completed_tasks[real_idx]
 
         self._refresh_listbox()
 
     def mark_as_done(self):
-        selection = self.task_listbox.curselection()
-        if not selection:
-            messagebox.showinfo("No Selection", "Please select a task first.")
+        sel = self.listbox.curselection()
+        if not sel:
+            messagebox.showinfo("No selection", "Select a task first.")
             return
 
-        index = selection[0]
+        idx = sel[0]
+        offset = 1 if self.pending_tasks and self.completed_tasks else 0
 
-        if index >= len(self.pending_tasks) + (1 if self.pending_tasks and self.completed_tasks else 0):
-            messagebox.showinfo("Already Completed", "This task is already marked as done.")
+        if idx >= len(self.pending_tasks) + offset:
+            messagebox.showinfo("Already done", "Task is already completed.")
             return
 
-        if index < len(self.pending_tasks):
-            task = self.pending_tasks.pop(index)
+        if idx < len(self.pending_tasks):
+            task = self.pending_tasks.pop(idx)
             self.completed_tasks.append(task)
             self._refresh_listbox()
 
     def _refresh_listbox(self):
-        self.task_listbox.delete(0, tk.END)
+        self.listbox.delete(0, tk.END)
+        c = self.colors
 
         for task in self.pending_tasks:
-            self.task_listbox.insert(tk.END, f"  •  {task}")
+            self.listbox.insert(tk.END, f"  •  {task}")
 
         if self.pending_tasks and self.completed_tasks:
-            self.task_listbox.insert(tk.END, "  ───────────────  Completed  ───────────────")
+            sep_idx = self.listbox.size()
+            self.listbox.insert(tk.END, "  ─────────────  Completed  ─────────────")
+            self.listbox.itemconfig(sep_idx, fg=c["text_mute"])
 
         for task in self.completed_tasks:
-            idx = self.task_listbox.size()
-            self.task_listbox.insert(tk.END, f"  ✓  {task}")
-            self.task_listbox.itemconfig(idx, fg="#6b7280")
+            idx = self.listbox.size()
+            self.listbox.insert(tk.END, f"  ✓  {task}")
+            self.listbox.itemconfig(idx, fg=c["text_mute"])
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = TodoApp(root)
+    app = TaskFlow(root)
     root.mainloop()
