@@ -18,25 +18,23 @@ class TaskFlow:
         self.root.bind("<Return>", lambda e: self.add_task())
 
     def _setup_theme(self):
-        # Dark professional palette - restrained & high-contrast
         self.colors = {
-            "bg":           "#0d1117",      # very dark background
-            "surface":      "#161b22",      # cards / panels
-            "surface_alt":  "#1f2937",      # subtle variation
-            "text":         "#e6edf3",      # main text
-            "text_mute":    "#8b949e",      # secondary / completed
-            "border":       "#30363d",      # subtle lines
-            "accent":       "#58a6ff",      # blue links / primary action
-            "accent_hover": "#388bfd",      # hover state
-            "danger":       "#f85149",      # delete
-            "success":      "#3fb950",      # complete (used subtly)
-            "selection":    "#1f6feb",      # selected item bg
+            "bg":           "#0d1117",
+            "surface":      "#161b22",
+            "surface_alt":  "#1f2937",
+            "text":         "#e6edf3",
+            "text_mute":    "#8b949e",
+            "border":       "#30363d",
+            "accent":       "#58a6ff",
+            "accent_hover": "#388bfd",
+            "danger":       "#f85149",
+            "success":      "#3fb950",
+            "selection":    "#1f6feb",
         }
 
         style = ttk.Style()
         style.theme_use("clam")
 
-        # Button styling
         style.configure("TButton",
                         font=("Segoe UI", 11, "bold"),
                         padding=10,
@@ -47,7 +45,6 @@ class TaskFlow:
                               ("!disabled", self.colors["accent"])],
                   foreground=[("active", "white"), ("!disabled", "white")])
 
-        # Accent button for Mark Complete
         style.configure("Success.TButton",
                         background=self.colors["success"],
                         foreground="white")
@@ -66,10 +63,9 @@ class TaskFlow:
 
         main = ttk.Frame(self.root, padding="28 32 28 24", style="TFrame")
         main.pack(fill="both", expand=True)
-        main.configure(style="TFrame")  # ensure bg
+        main.configure(style="TFrame")
         ttk.Style().configure("TFrame", background=c["bg"])
 
-        # Header
         header = tk.Label(main,
                           text="TaskFlow",
                           font=("Segoe UI", 24, "bold"),
@@ -119,7 +115,6 @@ class TaskFlow:
 
         scrollbar.config(command=self.listbox.yview)
 
-        # Bottom buttons
         btn_row = tk.Frame(main, bg=c["bg"])
         btn_row.pack(fill="x", pady=(24, 0))
 
