@@ -10,7 +10,7 @@ Modern, clean to-do list desktop application built with Python + Tkinter.
 
 ## Download
 → Windows: [Latest release → TaskFlow.exe](https://github.com/XtremeThaqi/taskflow/blob/main/dist/TaskFlow.exe)
-Just download and double-click — no installation or Python required.
+Just download and double-click
 
 ## How to run from source (for developers)
 Requires **Python 3.8+**
